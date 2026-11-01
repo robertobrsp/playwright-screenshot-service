@@ -1,5 +1,6 @@
 import express from "express";
 import { chromium } from "playwright";
+import { viraisRouter, startViraisRefresh } from "./virais/index.js";
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -16,6 +17,9 @@ function isAllowedUrl(url) {
     return false;
   }
 }
+
+app.use(express.static(new URL("./public", import.meta.url).pathname));
+app.use(viraisRouter);
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 
@@ -66,4 +70,7 @@ app.post("/screenshot", async (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`listening on ${port}`));
+app.listen(port, () => {
+  console.log(`listening on ${port}`);
+  startViraisRefresh();
+});
