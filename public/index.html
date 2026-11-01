@@ -108,6 +108,28 @@
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     const safeUrl = (u) => (/^https:\/\//.test(u || "") ? u : "#");
 
+    // Abrir no aplicativo em vez do site:
+    // - Android: link "intent://" com o pacote do app; se o app não estiver
+    //   instalado, o Chrome abre o link normal (browser_fallback_url).
+    // - iPhone: o link https normal, na mesma aba. Ao tocar nele no Safari,
+    //   o iOS entrega para o app instalado (Universal Links).
+    // - Computador: link normal em nova aba.
+    const ANDROID_PKG = { youtube: "com.google.android.youtube", tiktok: "com.zhiliaoapp.musically", instagram: "com.instagram.android" };
+    const UA = navigator.userAgent;
+    const IS_ANDROID = /Android/i.test(UA);
+    const IS_IOS = /iPhone|iPad|iPod/i.test(UA) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    function openLink(item) {
+      const url = safeUrl(item.url);
+      if (url === "#") return { href: url, attrs: "" };
+      if (IS_ANDROID && ANDROID_PKG[item.platform]) {
+        const intent = `intent://${url.replace(/^https:\/\//, "")}#Intent;scheme=https;package=${ANDROID_PKG[item.platform]};` +
+          `S.browser_fallback_url=${encodeURIComponent(url)};end`;
+        return { href: intent, attrs: "" };
+      }
+      if (IS_IOS) return { href: url, attrs: "" };
+      return { href: url, attrs: 'target="_blank" rel="noopener noreferrer"' };
+    }
+
     function allItems() {
       return (state.data?.platforms || []).flatMap((p) => p.items);
     }
@@ -139,8 +161,8 @@
       const max = Math.max(1, ...items.map((i) => i.score));
       const grid = document.getElementById("grid");
       if (!items.length) { grid.innerHTML = `<div class="empty">Nada por aqui ainda.</div>`; return; }
-      grid.innerHTML = items.map((i, idx) => `
-        <a class="card" href="${esc(safeUrl(i.url))}" target="_blank" rel="noopener noreferrer">
+      grid.innerHTML = items.map((i, idx) => { const link = openLink(i); return `
+        <a class="card" href="${esc(link.href)}" ${link.attrs}>
           <div class="thumb">
             ${i.thumbnail ? `<img src="${esc(safeUrl(i.thumbnail))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}
             <span class="rank">#${idx + 1}</span>
@@ -157,7 +179,7 @@
               ${i.shares ? `<span>↗ <b>${fmt.format(i.shares)}</b></span>` : ""}
             </div>
           </div>
-        </a>`).join("");
+        </a>`; }).join("");
     }
 
     function render() { renderTabs(); renderNotice(); renderGrid(); }
