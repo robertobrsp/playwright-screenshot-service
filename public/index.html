@@ -5,94 +5,142 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Virais do Momento</title>
   <meta name="description" content="Os vídeos que estão viralizando no YouTube nos últimos 15 dias, com um resumo de cada um." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Figtree:wght@500;600;700;800&display=swap" />
   <style>
+    /* Visual pop: fundo amarelo, contornos grossos, sombras coloridas "chapadas" e adesivos */
     :root {
-      --bg: #f6f6f8; --surface: #ffffff; --text: #16161a; --muted: #6b6b76; --border: #e4e4ea;
-      --accent: #ff3d6e; --yt: #ff0033; --tt: #00b8b0; --ig: #d62976;
-      --shadow: 0 1px 2px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.06);
+      --bg: #ffe94d; --dots: #f5d400; --card: #ffffff; --ink: #16081f; --muted: #5d4b6b; --line: #16081f;
+      --pink: #ff2d87; --blue: #3b5bff; --mint: #17d99a; --orange: #ff7a1a; --soft: #fff4b8; --on-color: #ffffff;
+      --yt: #ff0033; --tt: #00b8b0; --ig: #e1306c;
+      --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+      --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     }
     @media (prefers-color-scheme: dark) {
-      :root { --bg: #0e0e12; --surface: #18181f; --text: #f1f1f4; --muted: #9a9aa6; --border: #2a2a34;
-              --shadow: 0 1px 2px rgba(0,0,0,.4); }
+      :root:not([data-theme="light"]) {
+        --bg: #1c0838; --dots: #2b1052; --card: #2a0f52; --ink: #fff6dc; --muted: #c9b6e6; --line: #ffe94d;
+        --pink: #ff3d94; --blue: #5a76ff; --mint: #1fe6a6; --orange: #ff8a33; --soft: #3a1a6b; --on-color: #ffffff;
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #1c0838; --dots: #2b1052; --card: #2a0f52; --ink: #fff6dc; --muted: #c9b6e6; --line: #ffe94d;
+      --pink: #ff3d94; --blue: #5a76ff; --mint: #1fe6a6; --orange: #ff8a33; --soft: #3a1a6b; --on-color: #ffffff;
+      color-scheme: dark;
     }
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
-    body { margin: 0; background: var(--bg); color: var(--text);
-           font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-    header { max-width: 1200px; margin: 0 auto; padding: 32px 16px 8px; }
-    h1 { margin: 0; font-size: clamp(26px, 4vw, 38px); letter-spacing: -.02em; }
-    h1 span { color: var(--accent); }
-    .sub { color: var(--muted); margin: 6px 0 0; }
-    .toolbar { z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent);
-               backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
-    .toolbar-in { max-width: 1200px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px;
-                  flex-wrap: wrap; align-items: center; justify-content: space-between; }
-    @media (min-width: 700px) { .toolbar { position: sticky; top: 0; } }
-    .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-    .tab { border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 7px 14px;
-           border-radius: 999px; cursor: pointer; font: inherit; font-weight: 600; display: inline-flex; gap: 6px; align-items: center; }
-    .tab[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
-    .tab .count { font-weight: 500; opacity: .6; font-size: 13px; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    select { font: inherit; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border);
-             background: var(--surface); color: var(--text); }
-    main { max-width: 1200px; margin: 0 auto; padding: 16px 16px 48px; }
-    .notice { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
-              padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
+    body { margin: 0; color: var(--ink); font: 500 15px/1.5 var(--font-body);
+           background: var(--bg) radial-gradient(var(--dots) 1.5px, transparent 1.6px) 0 0 / 18px 18px; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+    /* Topo */
+    .hero .wrap { padding-block: 34px 22px; }
+    .sticker { display: inline-block; background: var(--mint); color: var(--ink); border: 3px solid var(--line); border-radius: 999px;
+               padding: 4px 14px; font: 800 13px var(--font-body); text-transform: uppercase; letter-spacing: .06em;
+               transform: rotate(-3deg); box-shadow: 3px 3px 0 var(--line); }
+    h1 { font-family: var(--font-display); font-weight: 900; font-size: clamp(34px, 7.5vw, 76px); line-height: 1.02;
+         letter-spacing: -.02em; margin: 16px 0 0; text-transform: uppercase; text-wrap: balance; }
+    h1 .hl { display: inline-block; padding: 0 .18em; border: 3px solid var(--line); border-radius: .18em; color: var(--on-color); }
+    h1 .hl-1 { background: var(--pink); transform: rotate(-2deg); box-shadow: 5px 5px 0 var(--line); }
+    h1 .hl-2 { background: var(--blue); transform: rotate(1.5deg); box-shadow: 5px 5px 0 var(--line); }
+    .sub { margin: 18px 0 0; font-size: clamp(16px, 2.2vw, 19px); font-weight: 600; max-width: 56ch; }
+
+    .ticker { background: var(--pink); color: var(--on-color); border-block: 3px solid var(--line); overflow: hidden; white-space: nowrap; }
+    .ticker .track { display: inline-block; padding: 9px 0; font: 900 15px var(--font-display); letter-spacing: .04em;
+                     animation: ticker 28s linear infinite; }
+    .ticker .track span { padding: 0 18px; }
+    @keyframes ticker { to { transform: translateX(-50%); } }
+
+    /* Barra de filtros */
+    .toolbar { z-index: 5; background: var(--bg); border-bottom: 3px solid var(--line); }
+    @media (min-width: 700px) { .toolbar { position: sticky; top: env(safe-area-inset-top, 0px); } }
+    .toolbar .wrap { padding-block: 12px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab, select { font: 800 14px var(--font-body); color: var(--ink); background: var(--card); border: 3px solid var(--line);
+                   border-radius: 999px; padding: 7px 14px; box-shadow: 3px 3px 0 var(--line); cursor: pointer; }
+    .tab { display: inline-flex; gap: 7px; align-items: center; }
+    .tab[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+    .tab .count { opacity: .65; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    label.sort { display: inline-flex; gap: 10px; align-items: center; font-weight: 800; }
+    .tab:focus-visible, select:focus-visible, .card:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+    /* Cards */
+    main.wrap { padding-block: 26px 44px; }
+    .notice { background: var(--card); border: 3px dashed var(--line); border-radius: 14px; padding: 10px 14px; margin-bottom: 22px; font-size: 14px; }
     .notice:empty { display: none; }
-    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
-            box-shadow: var(--shadow); display: flex; flex-direction: column; text-decoration: none; color: inherit;
-            transition: transform .15s ease; }
-    .card:hover { transform: translateY(-2px); }
-    .thumb { position: relative; aspect-ratio: 16/10; background: var(--border); overflow: hidden; }
+    .grid { display: grid; gap: 26px 22px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    .card { --c: var(--pink); position: relative; background: var(--card); color: inherit; text-decoration: none;
+            border: 3px solid var(--line); border-radius: 18px; box-shadow: 7px 7px 0 var(--c);
+            display: flex; flex-direction: column; min-width: 0; transition: transform .15s ease, box-shadow .15s ease; }
+    .card:nth-child(4n+2) { --c: var(--blue); }
+    .card:nth-child(4n+3) { --c: var(--mint); }
+    .card:nth-child(4n+4) { --c: var(--orange); }
+    .card:hover { transform: translate(-3px, -3px) rotate(-.4deg); box-shadow: 11px 11px 0 var(--c); }
+    .thumb { position: relative; aspect-ratio: 16/9; max-width: 100%; overflow: hidden; border-radius: 15px 15px 0 0;
+             border-bottom: 3px solid var(--line); background: var(--c); }
     .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .rank { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,.72); color: #fff; font-weight: 700;
-            border-radius: 8px; padding: 2px 8px; font-size: 13px; }
-    .badge { position: absolute; top: 8px; right: 8px; color: #fff; font-weight: 700; font-size: 12px;
-             border-radius: 999px; padding: 3px 9px; }
-    .body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-    .summary { margin: 0; font-size: 14px; color: var(--text); opacity: .85; }
-    .summary span { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
-                    color: var(--muted); margin-bottom: 2px; }
-    .title { font-weight: 600; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .meta { color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 8px; }
+    .rank { position: absolute; top: -14px; left: -12px; z-index: 2; width: 52px; height: 52px; border-radius: 50%;
+            display: grid; place-items: center; background: var(--bg); color: var(--ink); border: 3px solid var(--line);
+            font: 900 17px var(--font-display); transform: rotate(-10deg); box-shadow: 3px 3px 0 var(--line); }
+    .card:nth-child(1) .rank { background: var(--pink); color: var(--on-color); width: 60px; height: 60px; font-size: 20px; }
+    .badge { position: absolute; top: 10px; right: 10px; color: var(--on-color); font: 800 12px var(--font-body); border: 2px solid var(--line);
+             border-radius: 999px; padding: 3px 10px; text-transform: uppercase; letter-spacing: .05em; }
+    .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .title { font-weight: 800; font-size: 17px; line-height: 1.3; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .summary { margin: 0; background: var(--soft); border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 14px; line-height: 1.45; }
+    .summary span { display: block; background: var(--mint); color: var(--ink); border: 2px solid var(--line); border-radius: 6px;
+                    padding: 0 7px; margin-bottom: 6px; width: fit-content; font: 800 11px var(--font-body); text-transform: uppercase; letter-spacing: .07em; transform: rotate(-2deg); }
+    .meta { color: var(--muted); font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; gap: 8px; }
     .meta .author { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .stats { display: flex; gap: 12px; font-size: 13px; font-variant-numeric: tabular-nums; margin-top: auto; flex-wrap: wrap; }
-    .stats b { font-weight: 700; }
-    .heat { height: 4px; border-radius: 4px; background: var(--border); overflow: hidden; }
-    .heat i { display: block; height: 100%; background: linear-gradient(90deg, #ffb347, var(--accent)); }
-    .empty, .loading { color: var(--muted); text-align: center; padding: 60px 0; }
-    footer { color: var(--muted); font-size: 13px; text-align: center; padding: 0 16px 32px; }
+    .heat { display: flex; align-items: center; gap: 8px; font: 800 11px var(--font-body); text-transform: uppercase; letter-spacing: .06em; }
+    .heat .bar { flex: 1; height: 12px; border: 2px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--card); }
+    .heat i { display: block; height: 100%; background: repeating-linear-gradient(-45deg, var(--orange) 0 8px, var(--pink) 8px 16px); }
+    .stats { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; font-variant-numeric: tabular-nums; }
+    .stats span { border: 2px solid var(--line); border-radius: 999px; padding: 2px 9px; font-size: 13px; font-weight: 700; background: var(--card); }
+    .stats b { font-weight: 800; }
+    .empty, .loading { text-align: center; padding: 60px 0; font: 900 18px var(--font-display); }
+    footer.wrap { color: var(--muted); font-size: 13px; font-weight: 600; padding-block: 0 36px; text-align: center; }
+    @media (prefers-reduced-motion: reduce) {
+      .ticker .track { animation: none; }
+      .card { transition: none; }
+      .card:hover { transform: none; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Virais do <span>Momento</span> 🔥</h1>
-    <p class="sub" id="sub">O que está bombando nos últimos 15 dias.</p>
+  <header class="hero">
+    <div class="wrap">
+      <span class="sticker">🔥 Em alta agora</span>
+      <h1><span class="hl hl-1">Virais</span> do <span class="hl hl-2">Momento</span></h1>
+      <p class="sub" id="sub">O que está bombando nos últimos 15 dias.</p>
+    </div>
+    <div class="ticker" aria-hidden="true"><div class="track" id="ticker"></div></div>
   </header>
 
   <div class="toolbar">
-    <div class="toolbar-in">
+    <div class="wrap">
       <div class="tabs" id="tabs" role="group" aria-label="Plataforma"></div>
-      <label>Ordenar por
+      <label class="sort" for="sort">Ordenar por
         <select id="sort">
-          <option value="score">🔥 Mais viral (velocidade)</option>
-          <option value="views">Mais visualizações</option>
-          <option value="likes">Mais curtidas</option>
-          <option value="comments">Mais comentários</option>
-          <option value="publishedAt">Mais recentes</option>
+          <option value="score">🔥 Mais viral</option>
+          <option value="views">👀 Mais vistos</option>
+          <option value="likes">❤️ Mais curtidos</option>
+          <option value="comments">💬 Mais comentados</option>
+          <option value="publishedAt">⚡ Mais recentes</option>
         </select>
       </label>
     </div>
   </div>
 
-  <main>
+  <main class="wrap">
     <div class="notice" id="notice"></div>
     <div class="grid" id="grid"><div class="loading">Carregando virais…</div></div>
   </main>
 
-  <footer id="footer"></footer>
+  <footer class="wrap" id="footer"></footer>
 
   <script>
     const PLAT = {
@@ -146,7 +194,7 @@
       const tabs = document.getElementById("tabs");
       tabs.hidden = shown.length < 2;
       tabs.innerHTML = Object.entries(PLAT).filter(([k]) => k === "all" || shown.includes(k)).map(([k, v]) => `
-        <button class="tab" data-tab="${k}" aria-pressed="${state.tab === k}">
+        <button class="tab" type="button" data-tab="${k}" aria-pressed="${state.tab === k}">
           ${v.color ? `<span class="dot" style="background:${v.color}"></span>` : ""}
           ${v.label} <span class="count">${counts[k] ?? 0}</span>
         </button>`).join("");
@@ -171,18 +219,18 @@
       if (!items.length) { grid.innerHTML = `<div class="empty">Nada por aqui ainda.</div>`; return; }
       grid.innerHTML = items.map((i, idx) => { const link = openLink(i); return `
         <a class="card" href="${esc(link.href)}" ${link.attrs}>
+          <span class="rank">#${idx + 1}</span>
           <div class="thumb">
             ${i.thumbnail ? `<img src="${esc(safeUrl(i.thumbnail))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}
-            <span class="rank">#${idx + 1}</span>
             <span class="badge" style="background:${PLAT[i.platform].color}">${PLAT[i.platform].label}</span>
           </div>
           <div class="body">
             <p class="title">${esc(i.title) || "<i>(sem legenda)</i>"}</p>
             ${i.summary ? `<p class="summary"><span>Sobre o vídeo</span>${esc(i.summary)}</p>` : ""}
             <div class="meta"><span class="author">${esc(i.author)}</span><span>${ago(i.publishedAt)}</span></div>
-            <div class="heat" title="Velocidade viral"><i style="width:${Math.max(4, (i.score / max) * 100)}%"></i></div>
+            <div class="heat" title="Velocidade viral">🔥<span class="bar"><i style="width:${Math.max(6, (i.score / max) * 100)}%"></i></span></div>
             <div class="stats">
-              ${i.views ? `<span>👁 <b>${fmt.format(i.views)}</b></span>` : ""}
+              ${i.views ? `<span>👀 <b>${fmt.format(i.views)}</b></span>` : ""}
               ${i.likes ? `<span>❤️ <b>${fmt.format(i.likes)}</b></span>` : ""}
               ${i.comments ? `<span>💬 <b>${fmt.format(i.comments)}</b></span>` : ""}
               ${i.shares ? `<span>↗ <b>${fmt.format(i.shares)}</b></span>` : ""}
@@ -190,6 +238,10 @@
           </div>
         </a>`; }).join("");
     }
+
+    // Faixa animada: o conteúdo é repetido para o loop não ter "pulo"
+    const TICKER = ["TÁ BOMBANDO", "VIRALIZOU", "TODO MUNDO VIU", "EM ALTA", "NÃO PERDE"];
+    document.getElementById("ticker").innerHTML = Array(6).fill(TICKER).flat().map((t) => `<span>${t} ★</span>`).join("");
 
     function render() { renderTabs(); renderNotice(); renderGrid(); }
 
