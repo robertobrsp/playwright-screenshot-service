@@ -76,7 +76,7 @@ button{font:inherit;color:inherit}
 
 /* board */
 .board-wrap{
-  width:min(100%, 470px); max-width:100%; margin:0 auto; padding:6px; border-radius:30px;
+  position:relative; width:min(100%, 470px); max-width:100%; margin:0 auto; padding:6px; border-radius:30px;
   background:conic-gradient(from 20deg,#FF5A5F,#FFC93C,#3DDC97,#2EC4F1,#B69CFF,#FF7AC6,#FF5A5F);
   box-shadow:0 0 0 4px color-mix(in srgb, var(--turn, #fff) 55%, transparent), 0 18px 40px rgba(0,0,0,.45);
   transition:box-shadow .3s;
@@ -127,6 +127,11 @@ button{font:inherit;color:inherit}
 .ticker{min-height:2.6em; display:flex; align-items:center; justify-content:center; text-align:center; padding:6px 12px; border-radius:14px; background:rgba(255,255,255,.06); color:var(--ink); font-weight:800}
 .ticker.flash{animation:flash .45s ease-out}
 @keyframes flash{from{transform:scale(1.06); background:rgba(255,201,60,.3)}}
+.velha{position:absolute; inset:0; display:grid; place-items:center; z-index:5; pointer-events:none}
+.velha span{font:400 clamp(3rem,16vw,5.5rem)/1 var(--display); background:linear-gradient(90deg,#FF5A5F,#FFC93C,#3DDC97,#2EC4F1,#B69CFF); -webkit-background-clip:text; background-clip:text; color:transparent; filter:drop-shadow(0 6px 0 rgba(0,0,0,.5)); transform:rotate(-8deg); animation:velhaIn .6s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes velhaIn{from{transform:scale(.2) rotate(-30deg); opacity:0}}
+.board.vanish-all .piece,.board.vanish-all .gold{animation:flyaway .6s ease-in forwards}
+@keyframes flyaway{to{transform:translateY(-70%) scale(0) rotate(220deg); opacity:0}}
 
 /* tray */
 .tray{display:flex; flex-direction:column; gap:8px}
@@ -241,6 +246,7 @@ button{font:inherit;color:inherit}
 
   <div class="board-wrap" id="boardWrap">
     <div class="board" id="board" role="grid" aria-label="Tabuleiro"></div>
+    <div class="velha" id="velha" hidden><span>VELHA!</span></div>
   </div>
 
   <div class="ticker" id="ticker" aria-live="polite"></div>
@@ -366,6 +372,8 @@ function newMatch(){
 }
 function newRound(){
   stopTimer();
+  $('#velha').hidden = true;
+  $('#board').classList.remove('vanish-all');
   Object.assign(S, {
     board:Array(N*N).fill(null), frozen:{}, golden:-1, goldenIn:0, cur:S.starter, moves:0,
     hands:[[],[]], left:1, pending:null, usedCard:false, over:false, anim:-1, fx:{}, winCells:[], busy:false
@@ -591,10 +599,14 @@ function roundWon(p){
 }
 function roundDraw(msg){
   S.over = true; stopTimer(); S.pending = null;
-  sfx('draw');
+  sfx('draw'); buzz([60,40,60]);
   render();
-  say(`Deu velha! ${msg}`);
-  setTimeout(() => showModal(-1, false, msg), reduced ? 300 : 900);
+  say(`Deu velha! ${msg} Recomeçando...`);
+  const b = $('#board');
+  b.querySelectorAll('.piece').forEach((el, k) => { el.style.animationDelay = (250 + k * 70) + 'ms'; });
+  b.classList.add('vanish-all');
+  $('#velha').hidden = false;
+  setTimeout(() => { S.starter = 1 - S.starter; newRound(); }, reduced ? 1200 : 2400);
 }
 
 /* ---------- cards ---------- */
@@ -1029,7 +1041,7 @@ function openRules(){
   $('#rulesBody').innerHTML = `
     <div class="sheet-head"><h2 id="rulesTitle">Regras</h2><button type="button" class="btn" data-close>Fechar</button></div>
     <div class="group"><h3>O BÁSICO</h3><ul class="rules-list">` +
-      li(SHAPES.x, '#FFF4E6', `Faça uma linha de ${K}`, `Coloque ${K} peças seguidas na horizontal, vertical ou diagonal para ganhar a rodada. Quem vencer ${Math.floor(CFG.bestOf/2)+1} rodada${CFG.bestOf > 1 ? 's' : ''} leva a partida. Empate é "deu velha" e não conta ponto.`) +
+      li(SHAPES.x, '#FFF4E6', `Faça uma linha de ${K}`, `Coloque ${K} peças seguidas na horizontal, vertical ou diagonal para ganhar a rodada. Quem vencer ${Math.floor(CFG.bestOf/2)+1} rodada${CFG.bestOf > 1 ? 's' : ''} leva a partida. Se empatar, aparece VELHA!, as peças somem e a rodada recomeça na hora, até alguém vencer.`) +
     `</ul></div>
     <div class="group"><h3>REGRAS MALUCAS</h3><p class="hint">As apagadas estão desligadas. Ligue e desligue no Painel.</p><ul class="rules-list">` +
       Object.entries(RULES).map(([k, r]) => li(r.icon, r.color, r.name + (CFG.rules[k] ? '' : ' · desligada'), r.desc, !CFG.rules[k])).join('') +
