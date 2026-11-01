@@ -7,11 +7,15 @@ import { WINDOW_DAYS } from "./util.js";
 
 const CACHE_MS = Number(process.env.VIRAIS_CACHE_MINUTOS || 60) * 60 * 1000;
 
-const PLATFORMS = {
+const ALL_PLATFORMS = {
   youtube: { fetch: fetchYouTube, enabled: () => !!process.env.YOUTUBE_API_KEY, needs: "YOUTUBE_API_KEY" },
   tiktok: { fetch: fetchTikTok, enabled: () => !!process.env.APIFY_TOKEN, needs: "APIFY_TOKEN" },
   instagram: { fetch: fetchInstagram, enabled: () => !!process.env.APIFY_TOKEN, needs: "APIFY_TOKEN" },
 };
+
+// Quais plataformas o site mostra (padrão: só YouTube). Ex.: VIRAIS_PLATAFORMAS=youtube,tiktok,instagram
+const ENABLED = (process.env.VIRAIS_PLATAFORMAS || "youtube").split(",").map((s) => s.trim().toLowerCase());
+const PLATFORMS = Object.fromEntries(Object.entries(ALL_PLATFORMS).filter(([k]) => ENABLED.includes(k)));
 
 // cache[platform] = { at, data, promise }
 const cache = {};
@@ -56,7 +60,7 @@ async function load(name, { force = false } = {}) {
 export const viraisRouter = express.Router();
 
 viraisRouter.get("/api/virais", async (req, res) => {
-  const requested = String(req.query.plataforma || "youtube,tiktok,instagram")
+  const requested = String(req.query.plataforma || Object.keys(PLATFORMS).join(","))
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter((s) => PLATFORMS[s]);

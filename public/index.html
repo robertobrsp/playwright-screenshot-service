@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Virais do Momento</title>
-  <meta name="description" content="O que está viralizando no YouTube, TikTok e Instagram nos últimos 15 dias." />
+  <meta name="description" content="Os vídeos que estão viralizando no YouTube nos últimos 15 dias, com um resumo de cada um." />
   <style>
     :root {
       --bg: #f6f6f8; --surface: #ffffff; --text: #16161a; --muted: #6b6b76; --border: #e4e4ea;
@@ -16,6 +16,7 @@
               --shadow: 0 1px 2px rgba(0,0,0,.4); }
     }
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     body { margin: 0; background: var(--bg); color: var(--text);
            font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
     header { max-width: 1200px; margin: 0 auto; padding: 32px 16px 8px; }
@@ -51,6 +52,9 @@
     .badge { position: absolute; top: 8px; right: 8px; color: #fff; font-weight: 700; font-size: 12px;
              border-radius: 999px; padding: 3px 9px; }
     .body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .summary { margin: 0; font-size: 14px; color: var(--text); opacity: .85; }
+    .summary span { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+                    color: var(--muted); margin-bottom: 2px; }
     .title { font-weight: 600; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .meta { color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 8px; }
     .meta .author { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -65,7 +69,7 @@
 <body>
   <header>
     <h1>Virais do <span>Momento</span> 🔥</h1>
-    <p class="sub" id="sub">O que está bombando no YouTube, TikTok e Instagram nos últimos 15 dias.</p>
+    <p class="sub" id="sub">O que está bombando nos últimos 15 dias.</p>
   </header>
 
   <div class="toolbar">
@@ -136,8 +140,12 @@
 
     function renderTabs() {
       const counts = { all: allItems().length };
+      const shown = (state.data?.platforms || []).map((p) => p.platform);
       for (const p of state.data?.platforms || []) counts[p.platform] = p.items.length;
-      document.getElementById("tabs").innerHTML = Object.entries(PLAT).map(([k, v]) => `
+      // Com uma plataforma só (padrão: YouTube), as abas não fazem sentido
+      const tabs = document.getElementById("tabs");
+      tabs.hidden = shown.length < 2;
+      tabs.innerHTML = Object.entries(PLAT).filter(([k]) => k === "all" || shown.includes(k)).map(([k, v]) => `
         <button class="tab" data-tab="${k}" aria-pressed="${state.tab === k}">
           ${v.color ? `<span class="dot" style="background:${v.color}"></span>` : ""}
           ${v.label} <span class="count">${counts[k] ?? 0}</span>
@@ -170,6 +178,7 @@
           </div>
           <div class="body">
             <p class="title">${esc(i.title) || "<i>(sem legenda)</i>"}</p>
+            ${i.summary ? `<p class="summary"><span>Sobre o vídeo</span>${esc(i.summary)}</p>` : ""}
             <div class="meta"><span class="author">${esc(i.author)}</span><span>${ago(i.publishedAt)}</span></div>
             <div class="heat" title="Velocidade viral"><i style="width:${Math.max(4, (i.score / max) * 100)}%"></i></div>
             <div class="stats">
@@ -195,7 +204,7 @@
       .then((data) => {
         state.data = data;
         document.getElementById("sub").textContent =
-          `O que está bombando no YouTube, TikTok e Instagram nos últimos ${data.windowDays} dias.`;
+          `O que está bombando no ${data.platforms.map((p) => PLAT[p.platform].label).join(", ").replace(/, ([^,]*)$/, " e $1")} nos últimos ${data.windowDays} dias.`;
         document.getElementById("footer").textContent =
           `"Mais viral" = engajamento por hora desde a publicação. Atualizado ${new Date(data.generatedAt).toLocaleString("pt-BR")}.`;
         render();

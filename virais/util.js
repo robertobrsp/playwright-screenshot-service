@@ -30,6 +30,7 @@ export function normalize(item) {
     platform: item.platform,
     id: String(item.id),
     title: (item.title || "").trim().slice(0, 300),
+    summary: item.summary || "",
     author: item.author || "",
     url: item.url,
     thumbnail: item.thumbnail || "",

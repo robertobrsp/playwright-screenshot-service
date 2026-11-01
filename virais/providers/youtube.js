@@ -1,4 +1,5 @@
 import { isInWindow, normalize, windowStart } from "../util.js";
+import { adicionarResumos } from "../resumo.js";
 
 const API = "https://www.googleapis.com/youtube/v3";
 
@@ -42,10 +43,10 @@ export async function fetchYouTube({ region = process.env.VIRAIS_REGIAO || "BR",
     extra = details.items || [];
   }
 
-  return [...(popular.items || []), ...extra]
+  const top = [...(popular.items || []), ...extra]
     .filter((v) => isInWindow(v.snippet?.publishedAt))
-    .map((v) =>
-      normalize({
+    .map((v) => ({
+      ...normalize({
         platform: "youtube",
         id: v.id,
         title: v.snippet.title,
@@ -57,8 +58,13 @@ export async function fetchYouTube({ region = process.env.VIRAIS_REGIAO || "BR",
         views: v.statistics?.viewCount,
         likes: v.statistics?.likeCount,
         comments: v.statistics?.commentCount,
-      })
-    )
+      }),
+      // usados só para gerar o resumo; removidos antes de ir para o navegador
+      description: v.snippet.description || "",
+      tags: v.snippet.tags || [],
+    }))
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
+
+  return adicionarResumos(top);
 }

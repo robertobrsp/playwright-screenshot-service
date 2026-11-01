@@ -27,6 +27,17 @@ const TITLES = {
   ],
 };
 
+const SUMMARIES = {
+  youtube: [
+    "Criadores tentam completar um desafio que está circulando nas redes e mostram as reações a cada tentativa que dá errado.",
+    "Passa um dia inteiro dentro de um mercado, mostrando o que acontece de madrugada e quanto gastou no final.",
+    "Clipe novo de uma artista brasileira, com coreografia e cenário que viraram assunto nos comentários.",
+    "Testa na prática a receita de 3 ingredientes que viralizou e conta se o resultado fica igual ao das redes.",
+    "Compilado dos lances mais importantes da partida, com os gols, a polêmica do VAR e a comemoração no fim.",
+    "Explica de onde veio a trend do momento, por que ela pegou e como fazer a sua versão.",
+  ],
+};
+
 const AUTHORS = ["@canaldoze", "@trendsbr", "@viralizou", "@cozinhafacil", "@memesdodia", "@rotinareal"];
 
 // Gerador determinístico para os dados não mudarem a cada refresh
@@ -44,6 +55,7 @@ export function mockItems(platform) {
       platform,
       id: `demo-${platform}-${i}`,
       title,
+      summary: SUMMARIES[platform]?.[i] || "",
       author: AUTHORS[i % AUTHORS.length],
       url: { youtube: "https://www.youtube.com", tiktok: "https://www.tiktok.com", instagram: "https://www.instagram.com" }[platform],
       thumbnail: `https://picsum.photos/seed/${platform}${i}/480/${platform === "youtube" ? 270 : 600}`,
